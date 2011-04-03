@@ -202,6 +202,7 @@ function InitializePreGraphics ()
     par.targetRadius = par.targetDiameter / 2;
     par.dataFileName = sprintf("Data-%s-%s.txt", par.experimenter, 
                                par.experiment);
+    InitializeResponses();
 endfunction
 
 function InitializeExperimenterInput ()
@@ -218,6 +219,14 @@ function InitializeExperimenterInput ()
                             "Condition name", "", "s", 0,
                             "Enter the duration in minutes", "", "f", 0);
     endif
+endfunction
+
+function InitializeResponses ()
+    global par
+    par.abortKey = KbName("ESCAPE");
+    par.pauseKey = KbName("p");
+    par.yesKey = KbName("y");
+    par.noKey = KbName("n");
 endfunction
 
 function InitializeGraphics
