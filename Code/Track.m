@@ -191,20 +191,22 @@ function MainLoop ()
     lastCursorY = par.lastCursorY;
     colTarget = par.colTarget;
     colCursor = par.colCursor;
-    pauseFlag = 0;
+    par.pauseFlag = 0;
+    keyPressed = 0;
     while (frame <= par.nFrames)
         [cursorX, cursorY] = GetMouse();
         ClearScreen();
         DrawTarget(par.targetX(frame), par.targetY(frame), colTarget);
         DrawCursor(cursorX, cursorY, colCursor);
         Screen("DrawingFinished", par.winMain);
-        tLastOnset = Flip(targNextOnset);
-        targNextOnset = tLastOnset + frameDur - slackDur;
-        if (KbCheck())
-            break;
+        [keyDown, t, keyCode] = KbCheck();
+        if (keyDown && !keyPressed)
+            ProcessMainLoopKeyPress(keyCode);
+            keyPressed = 1;
+        elseif (keyPressed && !keyDown)
+            keyPressed = 0;
         endif
-        if (!pauseFlag)
-            par.frameOnsetTimes(frame) = tLastOnset;
+        if (!par.pauseFlag)
             par.travelCursor += sqrt((cursorX - lastCursorX)^2 +
                                      (cursorY - lastCursorY)^2);
             d = sqrt((cursorX - par.targetX(frame))^2 +
@@ -215,7 +217,22 @@ function MainLoop ()
             lastCursorY = cursorY;
             frame++;
         endif
+        tLastOnset = Flip(targNextOnset);
+        targNextOnset = tLastOnset + frameDur - slackDur;
+        if (!par.pauseFlag)
+            par.frameOnsetTimes(frame) = tLastOnset;
+        endif
     endwhile
+endfunction
+
+function ProcessMainLoopKeyPress(keyCode)
+    global par
+    if (keyCode(par.abortKey))
+        AbortKeyPressed();
+        par.pauseFlag = 1;
+    elseif (keyCode(par.pauseKey))
+        par.pauseFlag = !par.pauseFlag;
+    endif
 endfunction
 
 
