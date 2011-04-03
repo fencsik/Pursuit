@@ -591,10 +591,15 @@ function AbortKeyPressed ()
     DrawFormattedText(par.winMain, string, "center", "center",
                       par.colText);
     FlipNow();
-    [keyTime, keyCode] = KbPressWait();
-    if (keyCode(par.yesKey))
-        error("abort key pressed");
-    endif
+    done = 0;
+    do
+        [keyTime, keyCode] = KbPressWait();
+        if (keyCode(par.yesKey))
+            error("abort key pressed");
+        elseif (keyCode(par.noKey))
+            done = 1;
+        endif
+    until (done)
     ClearScreen();
     DrawFormattedText(par.winMain, "Resuming experiment.  Please wait...",
                       "center", "center", par.colText);
