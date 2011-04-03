@@ -252,7 +252,6 @@ function InitializePostGraphics ()
     par.refreshDuration = Screen("GetFlipInterval", par.winMain);
     par.frameDuration = par.refreshDuration * par.refreshesPerFrame;
     par.slackDuration = par.refreshDuration / 2.0;
-    par.nFrames = ceil(60 * par.duration / par.frameDuration);
 
     ## calculate target locations ahead of time
     x = (0:(par.frameDuration):(60 * par.duration)) .* par.speedMultiplier;
