@@ -161,6 +161,7 @@ function WaitForSubjectStart ()
         DrawCursor(x, y, par.colCursor);
         Screen("DrawingFinished", par.winMain);
         onTarget = (sqrt((x - tx) ^ 2 + (y - ty) ^ 2) <= par.targetRadius);
+        [keyDown, t, keyCode] = KbCheck();
         if (!buttonPressed && any(buttons))
             buttonPressed = 1;
         elseif (buttonPressed && !any(buttons))
@@ -169,6 +170,8 @@ function WaitForSubjectStart ()
             else
                 buttonPressed = 0;
             endif
+        elseif (keyDown && any(keyCode(par.abortKey)))
+            AbortKeyPressed();
         endif
         tLastOnset = Flip(targNextOnset);
         targNextOnset = tLastOnset + par.frameDuration - par.slackDuration;
