@@ -15,7 +15,7 @@ function RunExperiment ()
     Initialize();
     PresentInstructions();
     PresentTask();
-    PresentResults();
+    PresentBlockFeedback();
     DataSummary();
 endfunction
 
@@ -40,7 +40,69 @@ function MainTaskSequence ()
     printf("Running priority = %0.0f\n", Priority());
 endfunction
 
-function PresentResults ()
+function PresentBlockFeedback ()
+    global par
+    s = GenerateFeedbackString();
+    ClearScreen();
+    DrawFormattedText(par.winMain, s, "center", "center", par.colText);
+    KbReleaseWait();
+    FlipNow();
+    do
+        [t, keyCode] = KbPressWait();
+    until (any(keyCode(par.abortKey)))
+endfunction
+
+function s = GenerateFeedbackString ()
+    global par
+    sDur = GenerateDurationString();
+    sAcc = GeneratePerformanceString();
+    sRefreshes = GenerateRefreshReport();
+    s = ["Tracking run complete\n\n\n\n\n", ...
+         sDur, "\n\n\n", sAcc, "\n\n\n\n\n", ...
+         "Thank you\n\n\n", ...
+         "Please let the experimenter know you are done\n\n\n\n\n", ...
+         sRefreshes];
+endfunction
+
+function s = GenerateDurationString ()
+    global par
+    t = par.frameOnsetTimes(!isnan(par.frameOnsetTimes));
+    if (numel(t) <= 1)
+        s = "";
+        return;
+    endif
+    dur = t(end) - t(1);
+    if (round(10 * dur / 60) / 10 == 1.0)
+        s1 = sprintf("1 minute");
+    elseif (dur / 60 > 1)
+        s1 = sprintf("%0.1f minutes", dur / 60);
+    else
+        s1 = sprintf("%0.1f seconds", dur);
+    endif
+    s = sprintf("You tracked for %s", s1);
+endfunction
+
+function s = GeneratePerformanceString ()
+    global par
+    s = sprintf("Your average distance from the target: %0.1f pixels", ...
+                sqrt(par.SSE / par.nFrames));
+endfunction
+
+function s = GenerateRefreshReport ()
+    global par
+    r = par.frameOnsetTimes;
+    r = r(!isnan(r));
+    if (isempty(r))
+        s = "";
+        return;
+    endif
+    n = sum(diff(r) > 1.25 * par.frameDuration);
+    if (n > 0)
+        s = sprintf("The computer missed %d/%d refreshes", ...
+                    n, par.nFrames);
+    else
+        s = "";
+    endif
 endfunction
 
 function DataSummary ()
