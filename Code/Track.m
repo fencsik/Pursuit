@@ -1,6 +1,6 @@
 function Track
     global version = "0.6"
-    global TestFlag = 1;
+    global TestFlag = 0;
     try
         RunExperiment();
     catch
