@@ -146,8 +146,9 @@ endfunction
 function WaitForSubjectStart ()
     global par
     SetMouse(0, par.centerY);
-    tx = par.targetX(1);
-    ty = par.targetY(1);
+    frame = 1;
+    tx = par.targetX(frame);
+    ty = par.targetY(frame);
     tLastOnset = FlipNow();
     targNextOnset = tLastOnset + par.frameDuration - par.slackDuration;
     done = 0;
@@ -157,7 +158,7 @@ function WaitForSubjectStart ()
     while (!done)
         [x, y, buttons] = GetMouse();
         ClearScreen();
-        DrawTarget(tx, ty, par.colTarget);
+        DrawTarget(frame);
         DrawCursor(x, y, par.colCursor);
         Screen("DrawingFinished", par.winMain);
         onTarget = (sqrt((x - tx) ^ 2 + (y - ty) ^ 2) <= par.targetRadius);
@@ -189,14 +190,13 @@ function MainLoop ()
     slackDur = par.slackDuration;
     lastCursorX = par.lastCursorX;
     lastCursorY = par.lastCursorY;
-    colTarget = par.colTarget;
     colCursor = par.colCursor;
     par.pauseFlag = 0;
     keyPressed = 0;
     while (frame <= par.nFrames)
         [cursorX, cursorY] = GetMouse();
         ClearScreen();
-        DrawTarget(par.targetX(frame), par.targetY(frame), colTarget);
+        DrawTarget(frame);
         DrawCursor(cursorX, cursorY, colCursor);
         Screen("DrawingFinished", par.winMain);
         [keyDown, t, keyCode] = KbCheck();
@@ -344,11 +344,7 @@ function InitializePostGraphics ()
     par.frameDuration = par.refreshDuration * par.refreshesPerFrame;
     par.slackDuration = par.refreshDuration / 2.0;
 
-    ## calculate target locations ahead of time
-    x = (0:(par.frameDuration):(60 * par.duration)) .* par.speedMultiplier;
-    par.nFrames = numel(x);
-    par.targetX = par.centerX + SumSine(par.frequencies, par.amplitude, x);
-    par.targetY = par.centerY + SumSine(par.frequencies, par.amplitude, x);
+    InitializeTarget();
 
     ## initialize variables for storing stats
     par.frameOnsetTimes = nan(par.nFrames, 1);
@@ -388,6 +384,32 @@ function ShutdownGraphics ()
     ShowCursor();
     Screen("CloseAll");
 endfunction
+
+
+######################################################################
+### Target management functions
+######################################################################
+
+function InitializeTarget ();
+    global par
+
+    par.targetSrcRect = [0, 0, 1, 1] * par.targetDiameter;
+
+    ## calculate target locations ahead of time
+    x = (0:(par.frameDuration):(60 * par.duration)) .* par.speedMultiplier;
+    par.nFrames = numel(x);
+    par.targetX = par.centerX + SumSine(par.frequencies, par.amplitude, x);
+    par.targetY = par.centerY + SumSine(par.frequencies, par.amplitude, x);
+    par.targetDstRect = CenterRectOnPoint(par.targetSrcRect, ...
+                                          par.targetX', par.targetY');
+
+    ## draw target
+    col = MakeColorTransparent(par.colBackground);
+    par.targetTexture = Screen("OpenOffscreenWindow", par.winMain, ...
+                               col, par.targetSrcRect);
+    Screen("FillOval", par.targetTexture, par.colTarget, par.targetSrcRect);
+endfunction
+
 
 
 ######################################################################
@@ -475,9 +497,10 @@ function DrawCursor (x, y, color)
            par.cursorThickness, color);
 endfunction
 
-function DrawTarget (x, y, color)
+function DrawTarget (frame)
     global par
-    Screen("DrawDots", par.winMain, [x; y], par.targetDiameter, color, [], 2);
+    Screen("DrawTexture", par.winMain, par.targetTexture, [], ...
+           par.targetDstRect(frame, :));
 endfunction
 
 
