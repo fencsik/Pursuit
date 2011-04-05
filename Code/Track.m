@@ -692,6 +692,27 @@ function AbortKeyPressed ()
     par.targNextOnset = t2 + .233;
 endfunction
 
+
+######################################################################
+### Utility functions
+######################################################################
+
+function colorOut = MakeColorTransparent(colorIn)
+    switch numel(colorIn)
+        case 1
+            colorOut = [1 1 1 0] * colorIn;
+        case 2
+            colorOut = [1 1 1 0] * colorIn(1);
+        case 3
+            colorOut = [colorIn, 0];
+        case 4
+            colorOut = [colorIn(1:3), 0];
+        otherwise
+            colorOut = [0 0 0 0];
+    endswitch
+endfunction
+
+
 ### Local Variables:
 ### mode:Octave
 ### End:
