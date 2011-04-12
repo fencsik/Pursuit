@@ -1,5 +1,5 @@
 function Track
-    global version = "0.6"
+    global version = "0.7"
     global TestFlag = 0;
     try
         RunExperiment();
