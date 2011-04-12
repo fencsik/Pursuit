@@ -158,6 +158,9 @@ function WaitForSubjectStart ()
     while (!done)
         [x, y, buttons] = GetMouse();
         ClearScreen();
+        if (par.progressBarFlag)
+            DrawProgressBar(0);
+        endif
         DrawTarget(frame);
         DrawCursor(x, y, par.colCursor);
         Screen("DrawingFinished", par.winMain);
@@ -196,6 +199,9 @@ function MainLoop ()
     while (frame <= par.nFrames)
         [cursorX, cursorY] = GetMouse();
         ClearScreen();
+        if (par.progressBarFlag)
+            DrawProgressBar(frame / par.nFrames);
+        endif
         DrawTarget(frame);
         DrawCursor(cursorX, cursorY, colCursor);
         Screen("DrawingFinished", par.winMain);
@@ -271,6 +277,8 @@ function InitializePreGraphics ()
     par.cursorRadius = 20;
     par.cursorThickness = 2;
     par.logFileName = "TrackLog";
+    ## progress bar
+    par.progressBarFlag = 1;
 
     ## define colors
     par.colBackground = 255;
@@ -345,6 +353,9 @@ function InitializePostGraphics ()
     par.slackDuration = par.refreshDuration / 2.0;
 
     InitializeTarget();
+    if (par.progressBarFlag)
+        InitializeProgressBar();
+    endif
 
     ## initialize variables for storing stats
     par.frameOnsetTimes = nan(par.nFrames, 1);
@@ -365,6 +376,19 @@ function InitializePostGraphics ()
     Screen("TextFont", par.winMain, par.textFont);
     Screen("TextSize", par.winMain, par.textSize);
     Screen("TextStyle", par.winMain, par.textStyle);
+endfunction
+
+function InitializeProgressBar ()
+    global par
+    par.colProgressBarFrame = 0;
+    par.colProgressBarFill = 0;
+    par.progressBarWidth = 20;
+    par.progressBarHeight = 300;
+    rect = [0 0 par.progressBarWidth par.progressBarHeight];
+    par.progressBarFrameRect = ...
+      CenterRectOnPoint(rect, 50 + par.progressBarWidth / 2, par.centerY);
+    [x, y] = RectCenter(par.progressBarFrameRect);
+    par.progressBarBottomCenter = [x; par.progressBarFrameRect(RectBottom)];
 endfunction
 
 function tf = IsMainWindowInitialized ()
@@ -501,6 +525,16 @@ function DrawTarget (frame)
     global par
     Screen("DrawTexture", par.winMain, par.targetTexture, [], ...
            par.targetDstRect(frame, :));
+endfunction
+
+function DrawProgressBar (proportion)
+    global par
+    Screen("FrameRect", par.winMain, par.colProgressBarFrame, ...
+           par.progressBarFrameRect);
+    Screen("DrawLines", par.winMain,
+           [par.progressBarBottomCenter, ...
+            par.progressBarBottomCenter - [0; par.progressBarHeight * proportion]], ...
+           5 * par.progressBarWidth, par.colProgressBarFill);
 endfunction
 
 
