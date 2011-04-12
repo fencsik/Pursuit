@@ -44,6 +44,9 @@ function PresentBlockFeedback ()
     global par
     s = GenerateFeedbackString();
     ClearScreen();
+    if (par.progressBarFlag)
+        DrawProgressBar(1);
+    endif
     DrawFormattedText(par.winMain, s, "center", "center", par.colText);
     KbReleaseWait();
     FlipNow();
