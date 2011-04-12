@@ -59,12 +59,10 @@ function s = GenerateFeedbackString ()
     global par
     sDur = GenerateDurationString();
     sAcc = GeneratePerformanceString();
-    sRefreshes = GenerateRefreshReport();
     s = ["Tracking run complete\n\n\n\n\n", ...
          sDur, "\n\n\n", sAcc, "\n\n\n\n\n", ...
          "Thank you\n\n\n", ...
-         "Please let the experimenter know you are done\n\n\n\n\n", ...
-         sRefreshes];
+         "Please let the experimenter know you are done"];
 endfunction
 
 function s = GenerateDurationString ()
