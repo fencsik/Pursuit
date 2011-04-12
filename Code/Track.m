@@ -7,6 +7,11 @@ function Track
         ple();
     end_try_catch
     Shutdown();
+    try
+        DataSummary();
+    catch
+        ple();
+    end_try_catch
     clear -global
     clear -all
 endfunction
@@ -16,7 +21,6 @@ function RunExperiment ()
     PresentInstructions();
     PresentTask();
     PresentBlockFeedback();
-    DataSummary();
 endfunction
 
 
