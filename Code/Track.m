@@ -108,8 +108,12 @@ endfunction
 
 function DataSummary ()
     global par
+    printf("Final priority = %0.0f\n", Priority());
     printf("Tracking duration = %0.2f s\n", par.duration);
     printf("Number of frames  = %0.0f\n", par.nFrames);
+    printf("Target travel distance = %0.4f pixels\n", ...
+           sum(sqrt(diff(par.targetX) .^ 2 + diff(par.targetY) .^ 2)));
+    printf("Cursor travel distance = %0.4f pixels\n", par.travelCursor);
     if (any(!isnan(par.frameOnsetTimes)))
         t = par.frameOnsetTimes;
         t = diff(1000 * t(!isnan(t)));
@@ -117,18 +121,12 @@ function DataSummary ()
         printf("  range = %0.2f - %0.2f\n", min(t), max(t));
         printf("  mean  = %0.2f\n", mean(t));
     endif
-    d = sqrt(diff(par.targetX) .^ 2 + diff(par.targetY) .^ 2);
-    printf("Target travel distance (pixels)\n");
-    printf("  range = %0.4f - %0.4f\n", min(d), max(d));
-    printf("  mean  = %0.4f\n", mean(d));
-    printf("  sum   = %0.4f\n", sum(d));
-    printf("Cursor travel distance (pixels)\n");
-    printf("  mean = %0.4f\n", par.travelCursor / par.nFrames);
-    printf("   sum = %0.4f\n", par.travelCursor);
-    printf("Tracking error (pixels)\n");
-    printf("  Mean distance  = %0.4f\n", par.sumDistance / par.nFrames);
-    printf("  RMSE           = %0.4f\n", sqrt(par.SSE / par.nFrames));
-    printf("Final priority = %0.0f\n", Priority());
+    s = GenerateRefreshReport();
+    if (~isempty(s))
+        printf("%s\n", s);
+    endif
+    printf("\nTracking error (RMSE) = %0.4f pixels\n\n", ...
+           sqrt(par.SSE / par.nFrames));
 endfunction
 
 
