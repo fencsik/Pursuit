@@ -113,7 +113,7 @@ endfunction
 function DataSummary ()
     global par
     printf("Final priority = %0.0f\n", Priority());
-    printf("Tracking duration = %0.2f s\n", par.duration);
+    printf("Tracking duration = %0.2f minutes\n", par.duration);
     printf("Number of frames  = %0.0f\n", par.nFrames);
     printf("Target travel distance = %0.4f pixels\n", ...
            sum(sqrt(diff(par.targetX) .^ 2 + diff(par.targetY) .^ 2)));
