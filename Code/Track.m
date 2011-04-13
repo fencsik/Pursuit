@@ -391,7 +391,7 @@ function InitializeProgressBar ()
     global par
     par.colProgressBarFrame = 0;
     par.colProgressBarFill = 0;
-    par.progressBarWidth = 20;
+    par.progressBarWidth = 30;
     par.progressBarHeight = 300;
     rect = [0 0 par.progressBarWidth par.progressBarHeight];
     par.progressBarFrameRect = ...
