@@ -41,6 +41,7 @@ function MainTaskSequence ()
     WaitForButtonRelease();
     WaitForSubjectStart();
     MainLoop();
+    SaveData()
     printf("Running priority = %0.0f\n", Priority());
 endfunction
 
@@ -244,6 +245,46 @@ function ProcessMainLoopKeyPress(keyCode)
     elseif (keyCode(par.pauseKey))
         par.pauseFlag = !par.pauseFlag;
     endif
+endfunction
+
+function SaveData ()
+    fid = OpenDataFile();
+    fprintf(fid, "%s\n", GenerateData());
+    CloseFile(fid);
+endfunction
+
+function f = OpenDataFile ()
+    global par
+    f = fopen(par.dataFileName, "r");
+    if (f == -1)
+        f = fopen(par.dataFileName, "w");
+        if (f == -1)
+            error("cannot create file %s", par.dataFileName);
+        endif
+        fprintf(f, "%s\n", GenerateDataHeader());
+    else
+        fclose(f);
+        f = fopen(par.dataFileName, "a");
+        if (f == -1)
+            error("cannot create file %s", par.dataFileName);
+        endif
+    endif
+endfunction
+
+function s = GenerateDataHeader ()
+    s = ["Experimenter\tSubject\tExperiment\tVersion\tTime\t", ...
+         "Condition\tDuration\tRMSE"];
+endfunction
+
+function s = GenerateData ()
+    global par version
+    s = sprintf("%s\t%d\t%s\t%s\t%s\t%s\t%0.0f\t%0.4f", ...
+                par.experimenter, par.subject, par.experiment, version, ...
+                par.runTime, par.condition, 60 * par.duration, par.RMSE);
+endfunction
+
+function CloseFile (fid)
+    fclose(fid);
 endfunction
 
 
