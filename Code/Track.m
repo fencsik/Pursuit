@@ -164,6 +164,7 @@ function WaitForSubjectStart ()
         if (par.progressBarFlag)
             DrawProgressBar(0);
         endif
+        DrawSubjectStartInstructions();
         DrawTarget(frame);
         DrawCursor(x, y, par.colCursor);
         Screen("DrawingFinished", par.winMain);
@@ -397,6 +398,26 @@ function InitializeProgressBar ()
       CenterRectOnPoint(rect, 50 + par.progressBarWidth / 2, par.centerY);
 endfunction
 
+function InitializeSubjectStartInstructions ()
+    global par
+
+    ## first, write in an offscreen window
+    col = MakeColorTransparent(par.colBackground);
+    win = Screen("OpenOffscreenWindow", par.winMain, col);
+    SetWindowFont(win, par.textFont, par.textSize, par.textStyle);
+    [x, y, rect] = DrawFormattedText(win, ...
+                                     "Click on the dot to begin tracking",
+                                     [], [], par.colText);
+    rect = ScaleRect(rect, 1, 2);
+
+    ## next, extract to a texture
+    par.subjectStartInstructionsTex = ...
+      Screen("MakeTexture", par.winMain, Screen("GetImage", win, rect));
+    par.subjectStartInstructionsRect = ...
+      OffsetRect(AlignRect(rect, par.rectMain, "center", "top"), 0, ...
+                 RectHeight(rect));
+endfunction
+
 function tf = IsMainWindowInitialized ()
     global par
     tf = exist("par", "var") && isstruct(par) && ...
@@ -542,6 +563,12 @@ function DrawProgressBar (proportion)
                AlignRect(ScaleRect(par.progressBarFrameRect, 1, proportion), ...
                          par.progressBarFrameRect, RectBottom));
     endif
+endfunction
+
+function DrawSubjectStartInstructions ()
+    global par
+    Screen("DrawTexture", par.winMain, par.subjectStartInstructionsTex, ...
+           [], par.subjectStartInstructionsRect);
 endfunction
 
 
