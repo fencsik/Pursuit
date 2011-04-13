@@ -90,7 +90,7 @@ endfunction
 function s = GeneratePerformanceString ()
     global par
     s = sprintf("Your average distance from the target: %0.1f pixels", ...
-                sqrt(par.SSE / par.nFrames));
+                par.RMSE);
 endfunction
 
 function s = GenerateRefreshReport ()
@@ -233,6 +233,7 @@ function MainLoop ()
             par.frameOnsetTimes(frame) = tLastOnset;
         endif
     endwhile
+    par.RMSE = sqrt(par.SSE / par.nFrames);
 endfunction
 
 function ProcessMainLoopKeyPress(keyCode)
