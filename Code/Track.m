@@ -373,7 +373,7 @@ function InitializePostGraphics ()
         par.textFont = Screen("TextFont", par.winMain);
         par.textStyle = 1;
     else
-        par.textSize = 18;
+        par.textSize = 24;
         par.textFont = "Arial";
         par.textStyle = Screen("TextStyle", par.winMain);
     endif
