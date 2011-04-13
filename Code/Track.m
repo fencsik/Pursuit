@@ -433,11 +433,11 @@ function InitializeProgressBar ()
     global par
     par.colProgressBarFrame = 0;
     par.colProgressBarFill = 0;
-    par.progressBarWidth = 30;
-    par.progressBarHeight = 300;
-    rect = [0 0 par.progressBarWidth par.progressBarHeight];
+    par.progressBarWidth = 20;
+    par.progressBarLength = 500;
+    rect = [0 0 par.progressBarLength par.progressBarWidth];
     par.progressBarFrameRect = ...
-      CenterRectOnPoint(rect, 50 + par.progressBarWidth / 2, par.centerY);
+      OffsetRect(AlignRect(rect, par.rectMain, "center", "bottom"), 0, -50);
 endfunction
 
 function InitializeSubjectStartInstructions ()
@@ -602,8 +602,8 @@ function DrawProgressBar (proportion)
            par.progressBarFrameRect);
     if (proportion > 0)
         Screen("FillRect", par.winMain, par.colProgressBarFill, ...
-               AlignRect(ScaleRect(par.progressBarFrameRect, 1, proportion), ...
-                         par.progressBarFrameRect, RectBottom));
+               AlignRect(ScaleRect(par.progressBarFrameRect, proportion, 1), ...
+                         par.progressBarFrameRect, RectLeft));
     endif
 endfunction
 
