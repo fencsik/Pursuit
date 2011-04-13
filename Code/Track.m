@@ -376,9 +376,14 @@ function InitializePostGraphics ()
         par.textFont = "Arial";
         par.textStyle = Screen("TextStyle", par.winMain);
     endif
-    Screen("TextFont", par.winMain, par.textFont);
-    Screen("TextSize", par.winMain, par.textSize);
-    Screen("TextStyle", par.winMain, par.textStyle);
+    SetWindowFont(par.winMain, par.textFont, par.textSize, par.textStyle);
+    InitializeSubjectStartInstructions();
+endfunction
+
+function SetWindowFont(win, font, textSize, textStyle)
+    Screen("TextFont", win, font);
+    Screen("TextSize", win, textSize);
+    Screen("TextStyle", win, textStyle);
 endfunction
 
 function InitializeProgressBar ()
