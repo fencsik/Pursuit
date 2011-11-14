@@ -91,7 +91,7 @@ endfunction
 function s = GeneratePerformanceString ()
     global par
     s = sprintf("Your average distance from the target: %0.1f pixels", ...
-                par.RMSE);
+                par.RMSEadj);
 endfunction
 
 function s = GenerateRefreshReport ()
@@ -130,6 +130,8 @@ function DataSummary ()
     if (~isempty(s))
         printf("%s\n", s);
     endif
+    printf("\nAdjusted tracking error = %0.4f pixels\n\n", ...
+           par.RMSEadj);
     printf("\nTracking error (RMSE) = %0.4f pixels\n\n", ...
            par.RMSE);
 endfunction
@@ -224,6 +226,7 @@ function MainLoop ()
                      (cursorY - par.targetY(frame))^2);
             par.sumDistance += d;
             par.SSE += d^2;
+            par.SSEadj += (max(d - par.targetRadius, 0) ^ 2);
             lastCursorX = cursorX;
             lastCursorY = cursorY;
             frame++;
@@ -235,6 +238,7 @@ function MainLoop ()
         endif
     endwhile
     par.RMSE = sqrt(par.SSE / par.nFrames);
+    par.RMSEadj = sqrt(par.SSEadj / par.nFrames);
 endfunction
 
 function ProcessMainLoopKeyPress(keyCode)
@@ -408,6 +412,7 @@ function InitializePostGraphics ()
     par.travelCursor = 0;
     par.sumDistance = 0;
     par.SSE = 0;
+    par.SSEadj = 0; # adjusted for target radius
 
     ## define fonts
     if (IsLinux())
