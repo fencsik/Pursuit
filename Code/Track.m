@@ -131,7 +131,7 @@ function DataSummary ()
         printf("%s\n", s);
     endif
     printf("\nTracking error (RMSE) = %0.4f pixels\n\n", ...
-           sqrt(par.SSE / par.nFrames));
+           par.RMSE);
 endfunction
 
 
