@@ -316,7 +316,7 @@ function InitializePreGraphics ()
     par.runTime = datestr(now, "mmm dd, yyyy, HH:MM:SS");
 
     ## Settings
-    par.experiment = "PSYC3100-20141";
+    par.experiment = "PSYC3100-20151";
     par.refreshesPerFrame = 1; # frame rate
     ## target size and motion
     par.targetDiameter = 30; # target size
