@@ -211,6 +211,9 @@ function MainLoop ()
         endif
         DrawTarget(frame);
         DrawCursor(cursorX, cursorY, colCursor);
+        if (par.blockerStatus(frame))
+            DrawBlocker();
+        endif
         Screen("DrawingFinished", par.winMain);
         [keyDown, t, keyCode] = KbCheck();
         if (keyDown && !keyPressed)
@@ -327,6 +330,13 @@ function InitializePreGraphics ()
     par.cursorRadius = 20;
     par.cursorThickness = 2;
     par.logFileName = "TrackLog";
+    ## blocker/windshield wiper simulator
+    par.enableBlocker = 0;
+    par.blockerRect = [0 0 700 700];
+    par.blockerStartup = 5; #seconds
+    par.blockerISI = 5; # seconds
+    par.blockerDur = 0.2; #seconds
+
     ## progress bar
     par.progressBarFlag = 1;
 
@@ -358,6 +368,17 @@ function InitializeExperimenterInput ()
                             "Subject ID", "", "i", 0,
                             "Condition name", "", "s", 0,
                             "Enter the duration in minutes", "", "f", 0);
+        if (par.enableBlocker)
+            par.blockerFlag = ...
+               ExperimenterInput("Use blocker (1/0)", "", "i", 0);
+            if (par.blockerFlag < 0)
+                par.blockerFlag = 0;
+            elseif (par.blockerFlag > 1)
+                par.blockerFlag = 1;
+            endif
+        else
+            par.blockerFlag = 0;
+        endif
     endif
 endfunction
 
@@ -407,6 +428,8 @@ function InitializePostGraphics ()
         InitializeProgressBar();
     endif
 
+    InitializeBlocker();
+
     ## initialize variables for storing stats
     par.frameOnsetTimes = nan(par.nFrames, 1);
     par.travelCursor = 0;
@@ -443,6 +466,37 @@ function InitializeProgressBar ()
     rect = [0 0 par.progressBarLength par.progressBarWidth];
     par.progressBarFrameRect = ...
       OffsetRect(AlignRect(rect, par.rectMain, "center", "bottom"), 0, -50);
+endfunction
+
+function InitializeBlocker()
+    global par
+    par.blockerRect = CenterRect(par.blockerRect, par.rectMain);
+    par.blockerStatus = zeros(par.nFrames, 1);
+    if (!par.blockerFlag)
+        return;
+    endif
+    t = 0;
+    startupDone = 0;
+    frame = 1;
+    ## wind forward through startup
+    while (t < par.blockerStartup)
+        frame = frame + 1;
+        t = t + par.frameDuration;
+    endwhile
+    lastTimePoint = t;
+    blocker = 1;
+    while (frame <= par.nFrames)
+        par.blockerStatus(frame) = blocker;
+        frame = frame + 1;
+        t = t + par.frameDuration;
+        if (blocker && t >= lastTimePoint + par.blockerDur)
+            blocker = 0;
+            lastTimePoint = t;
+        elseif (!blocker && t >= lastTimePoint + par.blockerISI)
+            blocker = 1;
+            lastTimePoint = t;
+        endif
+    endwhile
 endfunction
 
 function InitializeSubjectStartInstructions ()
@@ -599,6 +653,11 @@ function DrawTarget (frame)
     global par
     Screen("DrawTexture", par.winMain, par.targetTexture, [], ...
            par.targetDstRect(frame, :));
+endfunction
+
+function DrawBlocker
+    global par
+    Screen("FillRect", par.winMain, 0, par.blockerRect);
 endfunction
 
 function DrawProgressBar (proportion)
