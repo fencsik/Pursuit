@@ -151,7 +151,7 @@ endfunction
 
 function WaitForSubjectStart ()
     global par
-    SetMouse(0, par.centerY);
+    SetMouse(par.centerX, 1.5*par.centerY);
     frame = 1;
     tx = par.targetX(frame);
     ty = par.targetY(frame);
