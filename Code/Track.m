@@ -509,7 +509,6 @@ function InitializeSubjectStartInstructions ()
     [x, y, rect] = DrawFormattedText(win, ...
                                      "Click on the dot to begin tracking",
                                      [], [], par.colText);
-    rect = ScaleRect(rect, 1, 2);
 
     ## next, extract to a texture
     par.subjectStartInstructionsTex = ...
